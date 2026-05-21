@@ -4,12 +4,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.pool = void 0;
-/**
- * db/client.ts
- * Pool de conexão com PostgreSQL (Supabase).
- * Configure DATABASE_URL no .env copiando de:
- * Supabase → Project Settings → Database → Connection string (URI)
- */
 const pg_1 = require("pg");
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
@@ -21,9 +15,15 @@ exports.pool = new pg_1.Pool({
     ssl: {
         rejectUnauthorized: false,
     },
-    // 🔥 IMPORTANTE: força handshake mais compatível no Render
     keepAlive: true,
     max: 10,
     idleTimeoutMillis: 30000,
     connectionTimeoutMillis: 15000,
 });
+// Teste de conexão na inicialização (opcional mas útil para debug)
+exports.pool.connect()
+    .then(client => {
+    console.log('✅ Conectado ao banco de dados com sucesso');
+    client.release();
+})
+    .catch(err => console.error('❌ Erro ao conectar ao banco:', err.message));
