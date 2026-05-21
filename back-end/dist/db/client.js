@@ -18,11 +18,13 @@ if (!process.env.DATABASE_URL) {
 }
 exports.pool = new pg_1.Pool({
     connectionString: process.env.DATABASE_URL,
-    ssl: { rejectUnauthorized: false }, // obrigatório no Supabase
+    // 🔥 FIX REAL para Supabase + Render
+    ssl: {
+        rejectUnauthorized: false,
+    },
+    // 🔥 importante para pooler
+    keepAlive: true,
     max: 10,
     idleTimeoutMillis: 30000,
-    connectionTimeoutMillis: 5000,
-});
-exports.pool.on('error', (err) => {
-    console.error('[DB] Erro inesperado no pool:', err.message);
+    connectionTimeoutMillis: 10000,
 });
