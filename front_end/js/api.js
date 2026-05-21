@@ -4,7 +4,7 @@
  * Todas as requisições passam por aqui.
  */
 
-const API_BASE = 'https://SUA-API.onrender.com/api'; // ← troque pela URL do Railway/Render
+const API_BASE = 'https://loja-legi-o-sports.onrender.com'; // ← troque pela URL do Railway/Render
 
 function getToken() {
   return sessionStorage.getItem('ls_token') ?? '';
