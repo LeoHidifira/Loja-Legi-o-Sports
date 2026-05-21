@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="description" content="Legião Sports — Academia de Judô e Jiu-Jitsu. Compre suplementos e acessórios."/>
+  <meta name="theme-color" content="#111111"/>
+  <title>Legião Sports</title>
+
+  <!-- Fontes -->
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+
+  <!-- CSS modular -->
+  <link rel="stylesheet" href="css/base.css"/>
+  <link rel="stylesheet" href="css/loja.css"/>
+  <link rel="stylesheet" href="css/checkout.css"/>
+  <link rel="stylesheet" href="css/admin.css"/>
+</head>
+<body>
+
+  <!-- ══════════════════════════════════════
+       VIEW: LOJA
+  ══════════════════════════════════════ -->
+  <section id="view-loja" class="view view--active" aria-label="Loja de produtos">
+
+    <header class="loja-nav" role="banner">
+      <div class="loja-nav__brand">
+        <svg class="logo-shield" viewBox="0 0 80 96" aria-hidden="true" focusable="false" width="38" height="38">
+          <path d="M40 4L74 18V52C74 70 58 86 40 92C22 86 6 70 6 52V18L40 4Z" fill="#1a1a1a" stroke="#333" stroke-width="1"/>
+          <path d="M40 4L74 18V52C74 70 58 86 40 92" stroke="#cc1e1e" stroke-width="5" fill="none"/>
+          <path d="M40 4L6 18V52C6 70 22 86 40 92"  stroke="#1d8c3a" stroke-width="5" fill="none"/>
+          <path d="M40 92C22 86 6 70 6 52V18L40 4"   stroke="#e05a1a" stroke-width="3" fill="none"/>
+          <text x="40" y="62" text-anchor="middle" font-family="'Barlow Condensed',sans-serif"
+                font-size="28" font-weight="900" fill="white">LS</text>
+        </svg>
+        <div class="logo-text" aria-label="Legião Sports">
+          <span class="logo-text__leg">LEGIÃO</span>
+          <span class="logo-text__sports">SPORTS</span>
+        </div>
+      </div>
+      <nav class="loja-nav__actions" aria-label="Ações do cabeçalho">
+        <button class="btn-admin-link" onclick="window.goAdmin()" aria-label="Acesso administrativo">⚙ Admin</button>
+        <button class="btn-cart" onclick="window.toggleDrawer()" aria-label="Abrir carrinho">
+          🛒 <span class="btn-cart__label">Carrinho</span>
+          <span class="cart-badge" id="cart-badge" aria-live="polite" aria-label="itens no carrinho">0</span>
+        </button>
+      </nav>
+    </header>
+
+    <section class="loja-hero" aria-label="Apresentação">
+      <div class="loja-hero__txt">
+        <span class="hero-tag">Judô &amp; Jiu-Jitsu</span>
+        <h1 class="loja-hero__h1">LOJA DA<br><em>LEGIÃO</em></h1>
+        <p class="loja-hero__sub">Suplementos, acessórios e tudo que você precisa para treinar mais forte.</p>
+      </div>
+      <span class="loja-hero__shield" aria-hidden="true">🛡️</span>
+    </section>
+
+    <section class="produtos-section" aria-label="Catálogo de produtos">
+      <header class="section-label">
+        <h2>Produtos</h2>
+        <div class="section-line" aria-hidden="true"></div>
+      </header>
+      <nav class="cat-bar" id="cat-bar" aria-label="Filtrar por categoria"></nav>
+      <div class="produtos-grid" id="produtos-grid" role="list" aria-label="Lista de produtos"></div>
+    </section>
+
+  </section>
+
+  <!-- Overlay + Drawer -->
+  <div class="overlay" id="overlay" onclick="window.toggleDrawer()" aria-hidden="true"></div>
+  <aside class="drawer" id="drawer" aria-label="Carrinho de compras">
+    <header class="drawer__head">
+      <h2>🛒 Carrinho</h2>
+      <button class="btn-close" onclick="window.toggleDrawer()" aria-label="Fechar carrinho">×</button>
+    </header>
+    <div class="drawer__body" id="drawer-body"></div>
+    <footer class="drawer__footer">
+      <div class="cart-total-row">
+        <span class="cart-total-lbl">Total</span>
+        <span class="cart-total-val" id="cart-total" aria-live="polite">R$ 0,00</span>
+      </div>
+      <button class="btn-checkout" id="btn-checkout" onclick="window.initCheckout()" disabled>
+        Finalizar compra →
+      </button>
+    </footer>
+  </aside>
+
+  <!-- ══════════════════════════════════════
+       VIEW: CHECKOUT
+  ══════════════════════════════════════ -->
+  <section id="view-checkout" class="view" aria-label="Finalizar pedido">
+    <div class="checkout-wrap">
+      <button class="back-btn" onclick="window.goView('loja')">← Voltar à loja</button>
+      <h1 class="checkout-title">Finalizar Pedido</h1>
+      <div class="checkout-cols">
+
+        <div class="checkout-left">
+          <section class="form-card" aria-label="Seus dados">
+            <h2 class="form-card__title">Seus dados</h2>
+            <div class="form-group">
+              <label for="f-nome">Nome completo</label>
+              <input type="text" id="f-nome" placeholder="Ex: João Silva" autocomplete="name" required/>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="f-celular">Celular (WhatsApp)</label>
+                <input type="tel" id="f-celular" placeholder="(11) 99999-9999" autocomplete="tel" required/>
+              </div>
+              <div class="form-group">
+                <label for="f-email">E-mail</label>
+                <input type="email" id="f-email" placeholder="joao@email.com" autocomplete="email" required/>
+              </div>
+            </div>
+          </section>
+
+          <section class="form-card" aria-label="Forma de pagamento">
+            <h2 class="form-card__title">Forma de pagamento</h2>
+            <div class="pgto-opts" role="radiogroup" aria-label="Selecione a forma de pagamento">
+              <div class="pgto-opt pgto-opt--selected" role="radio" aria-checked="true" tabindex="0" onclick="window.selectPgto(this,'pix')">
+                <span class="pgto-radio" aria-hidden="true"></span>
+                <span class="pgto-icon" aria-hidden="true">💳</span>
+                <div class="pgto-info"><strong>PIX agora</strong><span>Chave exibida na tela</span></div>
+              </div>
+              <div class="pgto-opt" role="radio" aria-checked="false" tabindex="0" onclick="window.selectPgto(this,'dinheiro')">
+                <span class="pgto-radio" aria-hidden="true"></span>
+                <span class="pgto-icon" aria-hidden="true">💵</span>
+                <div class="pgto-info"><strong>Dinheiro</strong><span>Pague com o professor</span></div>
+              </div>
+              <div class="pgto-opt" role="radio" aria-checked="false" tabindex="0" onclick="window.selectPgto(this,'agendado')">
+                <span class="pgto-radio" aria-hidden="true"></span>
+                <span class="pgto-icon" aria-hidden="true">📅</span>
+                <div class="pgto-info"><strong>Agendar para o fim do mês</strong><span>Cobrança via WhatsApp</span></div>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <aside class="order-card" aria-label="Resumo do pedido">
+          <h2 class="order-card__title">Resumo do pedido</h2>
+          <ul class="order-items" id="order-items" aria-label="Itens do pedido"></ul>
+          <hr class="order-divider" aria-hidden="true"/>
+          <div class="order-total">
+            <strong>Total</strong>
+            <span class="order-total__val" id="order-total" aria-live="polite">R$ 0,00</span>
+          </div>
+          <button class="btn-finalizar" onclick="window.finalizar()">Confirmar pedido</button>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <!-- Modal PIX -->
+  <div class="modal-bg" id="modal-pix" role="dialog" aria-modal="true" aria-label="Pagamento via PIX" hidden>
+    <div class="modal">
+      <h2>✅ Pedido confirmado!</h2>
+      <p>Realize o pagamento via PIX para concluir seu pedido.</p>
+      <p class="pix-tag" aria-hidden="true">Chave PIX</p>
+      <p class="pix-box" id="pix-key-display" role="textbox" aria-readonly="true" aria-label="Chave PIX"></p>
+      <button class="btn-copy" onclick="window.copiarPix()">📋 Copiar chave PIX</button>
+      <button class="btn-modal-close" onclick="window.fecharPix()">Fechar</button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       VIEW: SUCESSO
+  ══════════════════════════════════════ -->
+  <section id="view-sucesso" class="view" aria-label="Confirmação de pedido">
+    <div class="sucesso-box">
+      <p class="sucesso-icon" id="sucesso-icon" aria-hidden="true">✅</p>
+      <h1 id="sucesso-titulo">Pedido registrado!</h1>
+      <p id="sucesso-msg">Obrigado! Seu pedido foi registrado com sucesso.</p>
+      <button class="btn-voltar" onclick="window.goView('loja')">← Voltar à loja</button>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════
+       VIEW: LOGIN ADMIN
+  ══════════════════════════════════════ -->
+  <section id="view-login" class="view" aria-label="Login administrativo">
+    <div class="login-box">
+      <div class="login-logo">
+        <p class="login-logo__text">LEGIÃO SPORTS</p>
+        <p class="login-logo__sub">Painel Administrativo</p>
+      </div>
+      <h1 class="login-box__title">Entrar</h1>
+      <p class="login-err" id="login-err" role="alert" hidden>Senha incorreta.</p>
+      <div class="form-group">
+        <label for="login-senha">Senha</label>
+        <input type="password" id="login-senha" placeholder="Digite a senha"
+               onkeydown="if(event.key==='Enter') window.fazerLogin()" autocomplete="current-password"/>
+      </div>
+      <button class="btn-login" onclick="window.fazerLogin()">Entrar</button>
+      <p class="login-hint">Senha padrão: <strong>legiao123</strong></p>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════
+       VIEW: ADMIN
+  ══════════════════════════════════════ -->
+  <section id="view-admin" class="view" aria-label="Painel administrativo">
+    <aside class="admin-side" aria-label="Menu administrativo">
+      <div class="admin-logo">
+        <p class="admin-logo__nome">LEGIÃO SPORTS</p>
+        <p class="admin-logo__sub">Admin</p>
+      </div>
+      <nav class="admin-nav" aria-label="Seções do painel">
+        <button class="admin-nav__item admin-nav__item--active" onclick="window.adminTab('dashboard',this)"><span aria-hidden="true">📊</span> Dashboard</button>
+        <button class="admin-nav__item" onclick="window.adminTab('pedidos',this)"><span aria-hidden="true">🧾</span> Pedidos</button>
+        <button class="admin-nav__item" onclick="window.adminTab('clientes',this)"><span aria-hidden="true">👥</span> Clientes</button>
+        <button class="admin-nav__item" onclick="window.adminTab('cobran',this)"><span aria-hidden="true">💬</span> Cobranças</button>
+        <button class="admin-nav__item" onclick="window.adminTab('produtos',this)"><span aria-hidden="true">📦</span> Produtos</button>
+        <button class="admin-nav__item" onclick="window.adminTab('config',this)"><span aria-hidden="true">⚙️</span> Config</button>
+      </nav>
+      <footer class="admin-side__footer">
+        <button class="btn-sair" onclick="window.sair()">← Sair</button>
+      </footer>
+    </aside>
+
+    <main class="admin-main">
+
+      <!-- Dashboard -->
+      <section class="admin-section admin-section--active" id="sec-dashboard">
+        <h2 class="admin-section__title">Dashboard</h2>
+        <p class="admin-section__sub">Visão geral da academia</p>
+        <div class="metrics-grid" id="metrics-grid" role="list"></div>
+        <div class="table-wrap">
+          <header class="table-head"><h3>Últimos pedidos</h3></header>
+          <div class="table-scroll">
+            <table aria-label="Últimos pedidos">
+              <thead><tr><th>Cliente</th><th>Itens</th><th>Total</th><th>Pagamento</th><th>Status</th></tr></thead>
+              <tbody id="dash-pedidos"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- Pedidos -->
+      <section class="admin-section" id="sec-pedidos">
+        <div class="flex-between">
+          <div><h2 class="admin-section__title">Pedidos</h2><p class="admin-section__sub">Todos os pedidos</p></div>
+          <button class="btn-export" onclick="window.exportarCSV('pedidos')">⬇ CSV</button>
+        </div>
+        <div class="table-wrap">
+          <header class="table-head">
+            <h3>Pedidos</h3>
+            <input class="tbl-search" type="search" placeholder="Buscar..." oninput="window.filtrarPedidos(this.value)" aria-label="Buscar pedidos"/>
+          </header>
+          <div class="table-scroll">
+            <table aria-label="Lista de pedidos">
+              <thead><tr><th>Cliente</th><th>Celular</th><th>Itens</th><th>Total</th><th>Pagamento</th><th>Status</th><th>Data</th></tr></thead>
+              <tbody id="tbl-pedidos"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- Clientes -->
+      <section class="admin-section" id="sec-clientes">
+        <div class="flex-between">
+          <div><h2 class="admin-section__title">Clientes</h2><p class="admin-section__sub">Todos os clientes</p></div>
+          <button class="btn-export" onclick="window.exportarCSV('clientes')">⬇ CSV</button>
+        </div>
+        <div class="table-wrap">
+          <header class="table-head">
+            <h3>Clientes</h3>
+            <input class="tbl-search" type="search" placeholder="Buscar..." oninput="window.filtrarClientes(this.value)" aria-label="Buscar clientes"/>
+          </header>
+          <div class="table-scroll">
+            <table aria-label="Lista de clientes">
+              <thead><tr><th>Nome</th><th>E-mail</th><th>Celular</th><th>Pedidos</th><th>Total gasto</th><th>Cadastro</th><th>Ações</th></tr></thead>
+              <tbody id="tbl-clientes"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- Cobranças -->
+      <section class="admin-section" id="sec-cobran">
+        <h2 class="admin-section__title">Cobranças</h2>
+        <p class="admin-section__sub">Pagamentos agendados pendentes — clique para abrir o WhatsApp</p>
+        <div id="cobrancas-list"></div>
+      </section>
+
+      <!-- Produtos -->
+      <section class="admin-section" id="sec-produtos">
+        <div class="flex-between">
+          <div><h2 class="admin-section__title">Produtos</h2><p class="admin-section__sub">Gerencie o catálogo</p></div>
+          <button class="btn-add-prod" onclick="window.abrirModalProd()">+ Novo produto</button>
+        </div>
+        <div class="prod-admin-grid" id="prod-admin-grid"></div>
+      </section>
+
+      <!-- Config -->
+      <section class="admin-section" id="sec-config">
+        <h2 class="admin-section__title">Configurações</h2>
+        <p class="admin-section__sub">Personalize as informações da academia</p>
+        <div class="config-card">
+          <h3>Academia</h3>
+          <div class="config-row">
+            <div class="config-lbl"><strong>Nome da academia</strong><span>Aparece no site</span></div>
+            <input class="config-input" id="cfg-nome" type="text"/>
+          </div>
+          <div class="config-row">
+            <div class="config-lbl"><strong>Chave PIX</strong><span>Checkout e cobranças</span></div>
+            <input class="config-input" id="cfg-pix" type="text"/>
+          </div>
+          <div class="config-row">
+            <div class="config-lbl"><strong>Dia de cobrança</strong><span>Dia do mês (1–28)</span></div>
+            <input class="config-input" id="cfg-dia" type="number" min="1" max="28"/>
+          </div>
+        </div>
+        <div class="config-card">
+          <h3>Mensagem WhatsApp</h3>
+          <div class="config-row config-row--full">
+            <div class="config-lbl">
+              <strong>Template</strong>
+              <span>Use: <code>{nome}</code> <code>{produtos}</code> <code>{subtotal}</code> <code>{pix}</code> <code>{dia}</code></span>
+            </div>
+            <textarea class="config-input config-input--textarea" id="cfg-template" rows="7"></textarea>
+          </div>
+        </div>
+        <button class="btn-salvar-config" onclick="window.salvarConfig()">Salvar configurações</button>
+      </section>
+
+    </main>
+  </section>
+
+  <!-- Modal: confirmar pagamento -->
+  <div class="modal-bg" id="modal-confirm-pgto" role="dialog" aria-modal="true" aria-label="Confirmar pagamento" hidden>
+    <div class="modal-confirm">
+      <h2>Confirmar pagamento?</h2>
+      <p>Cliente: <strong id="confirm-pgto-nome"></strong></p>
+      <p class="modal-confirm__val" id="confirm-pgto-total" aria-live="polite"></p>
+      <p>Esta ação marcará o pedido como <strong>pago</strong>.</p>
+      <div class="modal-confirm__actions">
+        <button class="btn-confirm-nao" onclick="window.cancelarConfirm()">Cancelar</button>
+        <button class="btn-confirm-sim" onclick="window.confirmarPagamento()">✅ Confirmar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: editar cliente -->
+  <div class="modal-bg" id="modal-edit-cliente" role="dialog" aria-modal="true" aria-label="Editar cliente" hidden>
+    <div class="modal-edit-cli">
+      <h2>Editar cliente</h2>
+      <div class="form-group"><label for="ec-nome">Nome</label><input type="text" id="ec-nome" autocomplete="name"/></div>
+      <div class="form-group"><label for="ec-email">E-mail</label><input type="email" id="ec-email" autocomplete="email"/></div>
+      <div class="form-group"><label for="ec-cel">Celular</label><input type="tel" id="ec-cel" autocomplete="tel"/></div>
+      <div class="modal-actions">
+        <button class="btn-cancelar" onclick="window.fecharModalEditCliente()">Cancelar</button>
+        <button class="btn-salvar" onclick="window.salvarEdicaoCliente()">Salvar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: produto -->
+  <div class="modal-bg" id="modal-prod-bg" role="dialog" aria-modal="true" aria-label="Produto" hidden>
+    <div class="modal-prod">
+      <h2 id="modal-prod-title">Novo produto</h2>
+      <div class="form-group"><label for="mp-nome">Nome</label><input type="text" id="mp-nome" placeholder="Ex: Whey Protein 900g"/></div>
+      <div class="form-group"><label for="mp-desc">Descrição</label><input type="text" id="mp-desc" placeholder="Breve descrição"/></div>
+      <div class="form-row">
+        <div class="form-group"><label for="mp-preco">Preço (R$)</label><input type="number" id="mp-preco" step="0.01" min="0"/></div>
+        <div class="form-group"><label for="mp-emoji">Emoji</label><input type="text" id="mp-emoji" placeholder="🥤" maxlength="4"/></div>
+      </div>
+      <div class="form-group">
+        <label for="mp-cat">Categoria</label>
+        <select id="mp-cat">
+          <option>Suplementos</option><option>Alimentos</option>
+          <option>Bebidas</option><option>Acessórios</option><option>Outros</option>
+        </select>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-cancelar" onclick="window.fecharModalProd()">Cancelar</button>
+        <button class="btn-salvar" onclick="window.salvarProduto()">Salvar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast global -->
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <!-- Scripts (ES modules) -->
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
