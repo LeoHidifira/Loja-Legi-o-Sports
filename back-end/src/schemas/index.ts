@@ -8,7 +8,7 @@ import { z } from 'zod';
 export const ProdutoSchema = z.object({
   nome:      z.string().min(1, 'Nome obrigatório'),
   descricao: z.string().default(''),
-  preco:     z.number({ invalid_type_error: 'Preço deve ser número' }).positive('Preço deve ser positivo'),
+  preco:     z.number({ error: 'Preço deve ser número' }).positive('Preço deve ser positivo'),
   emoji:     z.string().default('📦'),
   categoria: z.enum(['Suplementos','Alimentos','Bebidas','Acessórios','Outros']).default('Outros'),
   ativo:     z.boolean().default(true),
