@@ -8,12 +8,10 @@ services:
     startCommand: npm start
     envVars:
       - key: DATABASE_URL
-        sync: false          # cole manualmente no painel do Render
-      - key: PORT
-        value: 10000
+        sync: false
       - key: ALLOWED_ORIGINS
-        sync: false          # ex: https://legiao-sports.vercel.app
+        sync: false
       - key: ADMIN_PASSWORD
-        sync: false          # senha do painel admin
+        sync: false
       - key: ADMIN_TOKEN
-        generateValue: true  # Render gera automaticamente
+        generateValue: true
