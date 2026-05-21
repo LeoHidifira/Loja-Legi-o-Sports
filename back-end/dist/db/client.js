@@ -18,13 +18,12 @@ if (!process.env.DATABASE_URL) {
 }
 exports.pool = new pg_1.Pool({
     connectionString: process.env.DATABASE_URL,
-    // 🔥 FIX REAL para Supabase + Render
     ssl: {
         rejectUnauthorized: false,
     },
-    // 🔥 importante para pooler
+    // 🔥 IMPORTANTE: força handshake mais compatível no Render
     keepAlive: true,
     max: 10,
     idleTimeoutMillis: 30000,
-    connectionTimeoutMillis: 10000,
+    connectionTimeoutMillis: 15000,
 });
