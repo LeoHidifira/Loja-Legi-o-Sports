@@ -1,9 +1,3 @@
-/**
- * db/client.ts
- * Pool de conexão com PostgreSQL (Supabase).
- * Configure DATABASE_URL no .env copiando de:
- * Supabase → Project Settings → Database → Connection string (URI)
- */
 import { Pool } from 'pg';
 import dotenv from 'dotenv';
 
@@ -15,14 +9,19 @@ if (!process.env.DATABASE_URL) {
 
 export const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-
   ssl: {
     rejectUnauthorized: false,
   },
-
-  // 🔥 IMPORTANTE: força handshake mais compatível no Render
   keepAlive: true,
   max: 10,
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 15000,
 });
+
+// Teste de conexão na inicialização (opcional mas útil para debug)
+pool.connect()
+  .then(client => {
+    console.log('✅ Conectado ao banco de dados com sucesso');
+    client.release();
+  })
+  .catch(err => console.error('❌ Erro ao conectar ao banco:', err.message));
