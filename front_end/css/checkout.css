@@ -1,0 +1,282 @@
+/* ════════════════════════════════════════
+   checkout.css — Checkout, modal PIX, sucesso, login
+   Mobile-first | Legião Sports
+════════════════════════════════════════ */
+
+/* ── Checkout ── */
+#view-checkout { background: var(--bg); }
+
+.checkout-wrap  { padding: 20px 16px 48px; max-width: 960px; margin: 0 auto; }
+.back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: 1px solid var(--border2);
+  color: var(--muted);
+  padding: 8px 14px;
+  border-radius: var(--r2);
+  font-size: .85rem;
+  transition: all var(--tr);
+  margin-bottom: 20px;
+}
+.back-btn:hover { color: var(--text); }
+
+.checkout-title {
+  font-family: var(--fh);
+  font-size: 1.8rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 20px;
+}
+
+.checkout-cols  { display: flex; flex-direction: column; gap: 16px; }
+.checkout-left  { display: flex; flex-direction: column; gap: 16px; }
+
+/* ── Form card ── */
+.form-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 20px;
+}
+.form-card__title {
+  font-family: var(--fh);
+  font-size: 1rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  margin-bottom: 18px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.form-card__title::before {
+  content: '';
+  width: 4px; height: 16px;
+  background: var(--green);
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+/* ── Pagamento ── */
+.pgto-opts { display: flex; flex-direction: column; gap: 10px; }
+.pgto-opt {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 14px;
+  border-radius: var(--r2);
+  border: 1px solid var(--border2);
+  background: var(--bg3);
+  cursor: pointer;
+  transition: all var(--tr);
+  -webkit-tap-highlight-color: transparent;
+}
+.pgto-opt:hover              { border-color: var(--green); }
+.pgto-opt--selected          { border-color: var(--green); background: rgba(29,140,58,.1); }
+.pgto-radio {
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  border: 2px solid var(--muted2);
+  background: transparent;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  transition: all var(--tr);
+}
+.pgto-opt--selected .pgto-radio { border-color: var(--green); background: var(--green); }
+.pgto-radio::after {
+  content: '';
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: #fff;
+  opacity: 0;
+}
+.pgto-opt--selected .pgto-radio::after { opacity: 1; }
+.pgto-icon { font-size: 1.4rem; flex-shrink: 0; }
+.pgto-info strong { display: block; font-size: .9rem; font-weight: 600; }
+.pgto-info span   { font-size: .78rem; color: var(--muted); }
+
+/* ── Order card ── */
+.order-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 20px;
+}
+.order-card__title {
+  font-family: var(--fh);
+  font-size: 1rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.order-card__title::before {
+  content: '';
+  width: 4px; height: 16px;
+  background: var(--orange);
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+.order-items   { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; padding: 0; }
+.order-item    { display: flex; justify-content: space-between; font-size: .85rem; gap: 8px; }
+.order-item__nome  { color: var(--muted); }
+.order-item__preco { font-weight: 600; white-space: nowrap; }
+.order-divider { border: none; border-top: 1px solid var(--border); margin: 12px 0; }
+.order-total   { display: flex; justify-content: space-between; align-items: center; }
+.order-total strong { font-size: .8rem; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; }
+.order-total__val   { font-family: var(--fh); font-size: 1.7rem; font-weight: 900; color: var(--green); }
+.btn-finalizar {
+  width: 100%;
+  margin-top: 18px;
+  padding: 14px;
+  border-radius: var(--r2);
+  background: var(--green);
+  border: none;
+  color: #fff;
+  font-family: var(--fh);
+  font-size: 1.1rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  transition: background var(--tr);
+}
+.btn-finalizar:hover { background: var(--green2); }
+
+/* ── Modal PIX ── */
+.modal { text-align: center; }
+.modal h2 { margin-bottom: 8px; }
+.modal > p { color: var(--muted); font-size: .875rem; margin-bottom: 16px; }
+.pix-tag  { font-size: .7rem; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 6px; }
+.pix-box  {
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  border-radius: var(--r2);
+  padding: 12px 16px;
+  font-family: monospace;
+  font-size: .95rem;
+  color: var(--green);
+  word-break: break-all;
+  margin-bottom: 14px;
+}
+.btn-copy {
+  width: 100%;
+  padding: 11px;
+  border-radius: var(--r2);
+  border: 1px solid var(--green);
+  background: transparent;
+  color: var(--green);
+  font-weight: 600;
+  transition: all var(--tr);
+  margin-bottom: 10px;
+}
+.btn-copy:hover { background: var(--green); color: #fff; }
+.btn-modal-close {
+  width: 100%;
+  padding: 11px;
+  border-radius: var(--r2);
+  border: 1px solid var(--border2);
+  background: transparent;
+  color: var(--muted);
+  transition: all var(--tr);
+}
+.btn-modal-close:hover { color: var(--text); border-color: var(--text); }
+
+/* ── Sucesso ── */
+#view-sucesso {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+}
+#view-sucesso.view--active { display: flex !important; }
+
+.sucesso-box {
+  text-align: center;
+  padding: 48px 24px;
+  max-width: 440px;
+  width: 100%;
+}
+.sucesso-icon   { font-size: 4.5rem; margin-bottom: 16px; animation: sucesso-in .5s ease; }
+.sucesso-box h1 { font-family: var(--fh); font-size: 2rem; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; }
+.sucesso-box p  { color: var(--muted); margin-top: 10px; font-size: .9rem; }
+.btn-voltar {
+  display: inline-block;
+  margin-top: 24px;
+  padding: 12px 28px;
+  border-radius: var(--r2);
+  background: var(--green);
+  border: none;
+  color: #fff;
+  font-family: var(--fh);
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  transition: background var(--tr);
+}
+.btn-voltar:hover { background: var(--green2); }
+@keyframes sucesso-in { from{opacity:0;transform:scale(.5)} to{opacity:1;transform:scale(1)} }
+
+/* ── Login ── */
+#view-login {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+}
+#view-login.view--active { display: flex !important; }
+
+.login-box {
+  background: var(--card);
+  border: 1px solid var(--border2);
+  border-radius: var(--r);
+  padding: 32px 24px;
+  width: 100%;
+  max-width: 360px;
+  margin: 16px;
+}
+.login-logo       { text-align: center; margin-bottom: 24px; }
+.login-logo__text { font-family: var(--fh); font-size: 1.5rem; font-weight: 900; letter-spacing: 1px; }
+.login-logo__sub  { font-size: .7rem; color: var(--green); text-transform: uppercase; letter-spacing: 2px; margin-top: 2px; }
+.login-box__title { font-family: var(--fh); font-size: 1.3rem; font-weight: 800; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 18px; }
+
+.login-err {
+  background: rgba(204,30,30,.15);
+  border: 1px solid var(--red);
+  color: var(--red);
+  padding: 10px 14px;
+  border-radius: var(--r2);
+  font-size: .85rem;
+  margin-bottom: 14px;
+}
+.btn-login {
+  width: 100%;
+  padding: 13px;
+  border-radius: var(--r2);
+  background: var(--green);
+  border: none;
+  color: #fff;
+  font-family: var(--fh);
+  font-size: 1.1rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  transition: background var(--tr);
+  margin-top: 4px;
+}
+.btn-login:hover { background: var(--green2); }
+.login-hint { margin-top: 14px; font-size: .75rem; color: var(--muted); text-align: center; }
+
+/* ── Desktop ── */
+@media (min-width: 768px) {
+  .checkout-wrap  { padding: 32px 24px 64px; }
+  .checkout-cols  { flex-direction: row; align-items: flex-start; }
+  .checkout-left  { flex: 1; }
+  .order-card     { width: 340px; flex-shrink: 0; position: sticky; top: 80px; }
+}
