@@ -18,10 +18,15 @@ const PORT = Number(process.env.PORT ?? 3333);
 const origens = (process.env.ALLOWED_ORIGINS ?? '').split(',').map(o => o.trim()).filter(Boolean);
 app.use((0, cors_1.default)({
     origin: (origin, cb) => {
-        // Permite sem origin (curl, Postman, mobile nativo)
-        if (!origin || origens.includes(origin))
+        if (!origin)
             return cb(null, true);
-        cb(new Error(`Origem bloqueada pelo CORS: ${origin}`));
+        const allowed = [
+            "https://loja-legiao-sports.vercel.app",
+            "http://localhost:5500"
+        ];
+        const isAllowed = allowed.includes(origin) ||
+            origin.includes("vercel.app");
+        return cb(null, isAllowed);
     },
     credentials: true,
 }));
