@@ -1,6 +1,7 @@
 /**
  * js/checkout.js
  * Checkout: formulário, pagamento, PIX e sucesso.
+ * ✅ Fecha o drawer automaticamente ao ir para checkout.
  */
 import { api }  from './api.js';
 import { fmtR, toast, goView } from './utils.js';
@@ -9,6 +10,12 @@ import { getCarrinho, limparCarrinho } from './loja.js';
 let pgtoSelecionado = 'pix';
 
 export function initCheckout() {
+  // ✅ Fecha o drawer antes de ir para o checkout
+  const drawer  = document.getElementById('drawer');
+  const overlay = document.getElementById('overlay');
+  if (drawer)  drawer.classList.remove('drawer--open');
+  if (overlay) overlay.classList.remove('overlay--open');
+
   renderOrderSummary();
   goView('checkout');
 }
@@ -17,16 +24,20 @@ function renderOrderSummary() {
   const carrinho = getCarrinho();
   const total    = carrinho.reduce((s, i) => s + Number(i.preco) * i.qty, 0);
   document.getElementById('order-items').innerHTML = carrinho.map(i => `
-    <div class="order-item">
+    <li class="order-item">
       <span class="order-item__nome">${i.emoji} ${i.nome} ×${i.qty}</span>
       <span class="order-item__preco">${fmtR(Number(i.preco) * i.qty)}</span>
-    </div>`).join('');
+    </li>`).join('');
   document.getElementById('order-total').textContent = fmtR(total);
 }
 
 window.selectPgto = (el, tipo) => {
-  document.querySelectorAll('.pgto-opt').forEach(o => o.classList.remove('pgto-opt--selected'));
+  document.querySelectorAll('.pgto-opt').forEach(o => {
+    o.classList.remove('pgto-opt--selected');
+    o.setAttribute('aria-checked', 'false');
+  });
   el.classList.add('pgto-opt--selected');
+  el.setAttribute('aria-checked', 'true');
   pgtoSelecionado = tipo;
 };
 
@@ -49,6 +60,9 @@ window.finalizar = async () => {
     forma_pgto: pgtoSelecionado,
   };
 
+  const btn = document.querySelector('.btn-finalizar');
+  if (btn) { btn.disabled = true; btn.textContent = 'Processando...'; }
+
   try {
     const res = await api.pedidos.criar(body);
     const { pix, total, forma_pgto } = res.dados;
@@ -57,6 +71,7 @@ window.finalizar = async () => {
     if (forma_pgto === 'pix') {
       document.getElementById('pix-key-display').textContent = pix;
       document.getElementById('modal-pix').classList.add('modal--open');
+      document.getElementById('modal-pix').removeAttribute('hidden');
     } else if (forma_pgto === 'dinheiro') {
       showSucesso('💵', 'Pedido registrado!',
         `Olá ${nome}! Dirija-se ao professor para pagar ${fmtR(total)}.`);
@@ -66,6 +81,8 @@ window.finalizar = async () => {
     }
   } catch (err) {
     toast(err.message ?? 'Erro ao finalizar pedido', 'err');
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = 'Confirmar pedido'; }
   }
 };
 
@@ -83,5 +100,7 @@ window.copiarPix = () => {
 
 window.fecharPix = () => {
   document.getElementById('modal-pix').classList.remove('modal--open');
-  showSucesso('✅', 'Pedido confirmado!', 'Assim que identificarmos o PIX seu pedido será liberado. Bons treinos! 🥋');
+  document.getElementById('modal-pix').setAttribute('hidden', '');
+  showSucesso('✅', 'Pedido confirmado!',
+    'Assim que identificarmos o PIX seu pedido será liberado. Bons treinos! 🥋');
 };

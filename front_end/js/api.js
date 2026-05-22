@@ -38,6 +38,7 @@ export const api = {
     criar:      (body)   => req('POST',   '/pedidos', body),
     listar:     ()       => req('GET',    '/pedidos'),
     status:     (id, s)  => req('PATCH',  `/pedidos/${id}/status`, { status_pgto: s }),
+    deletar:    (id)     => req('DELETE', `/pedidos/${id}`),
     wpp:        (id)     => req('PATCH',  `/pedidos/${id}/wpp`),
     cobrancas:  ()       => req('GET',    '/pedidos/cobrancas'),
     dashboard:  ()       => req('GET',    '/pedidos/dashboard'),

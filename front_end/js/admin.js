@@ -1,6 +1,8 @@
 /**
  * js/admin.js
- * Painel admin: dashboard, pedidos, clientes, cobranças, produtos, config.
+ * Painel admin completo.
+ * ✅ goAdmin() leva para LOGIN, não expõe o painel diretamente.
+ * ✅ Deletar pedido apenas quando status = PAGO.
  */
 import { api } from './api.js';
 import { fmtR, fmtData, pgtoLabel, statusLabel, toast, goView, iniciais } from './utils.js';
@@ -8,15 +10,16 @@ import { fmtR, fmtData, pgtoLabel, statusLabel, toast, goView, iniciais } from '
 /* ══ Login ══ */
 window.fazerLogin = async () => {
   const senha = document.getElementById('login-senha').value;
-  const err   = document.getElementById('login-err');
+  const errEl = document.getElementById('login-err');
   try {
     const res = await api.auth.login(senha);
     sessionStorage.setItem('ls_token', res.token);
-    err.hidden = true;
+    errEl.hidden = true;
+    document.getElementById('login-senha').value = '';
     goView('admin');
     renderDashboard();
   } catch {
-    err.hidden = false;
+    errEl.hidden = false;
   }
 };
 
@@ -25,9 +28,9 @@ window.sair = () => {
   goView('loja');
 };
 
+/* goAdmin: sempre vai para o LOGIN, nunca expõe o painel sem autenticação */
 window.goAdmin = () => {
-  if (sessionStorage.getItem('ls_token')) { goView('admin'); renderDashboard(); }
-  else goView('login');
+  goView('login');
 };
 
 /* ══ Tabs ══ */
@@ -53,19 +56,19 @@ async function renderDashboard() {
     const res = await api.pedidos.dashboard();
     const d   = res.dados;
     document.getElementById('metrics-grid').innerHTML = `
-      <article class="metric-card metric-card--green">
+      <article class="metric-card metric-card--green" role="listitem">
         <p class="metric-card__lbl">Total de pedidos</p>
         <p class="metric-card__val">${d.total_pedidos}</p>
       </article>
-      <article class="metric-card metric-card--white">
+      <article class="metric-card metric-card--white" role="listitem">
         <p class="metric-card__lbl">Clientes cadastrados</p>
         <p class="metric-card__val">${d.total_clientes}</p>
       </article>
-      <article class="metric-card metric-card--orange">
+      <article class="metric-card metric-card--orange" role="listitem">
         <p class="metric-card__lbl">A receber (agendado)</p>
         <p class="metric-card__val">${fmtR(d.total_agendado)}</p>
       </article>
-      <article class="metric-card metric-card--green">
+      <article class="metric-card metric-card--green" role="listitem">
         <p class="metric-card__lbl">Total recebido</p>
         <p class="metric-card__val" id="dash-total-rec">${fmtR(d.total_recebido)}</p>
       </article>`;
@@ -73,27 +76,24 @@ async function renderDashboard() {
     const pedRes = await api.pedidos.listar();
     const tbody  = document.getElementById('dash-pedidos');
     const lista  = pedRes.dados.slice(0, 8);
-    if (!lista.length) {
-      tbody.innerHTML = '<tr><td colspan="5" class="tbl-empty">Nenhum pedido ainda.</td></tr>';
-      return;
-    }
-    tbody.innerHTML = lista.map(p => `<tr>
-      <td>${p.cliente_nome}</td>
-      <td>${p.itens.length} item(ns)</td>
-      <td><strong>${fmtR(p.total)}</strong></td>
-      <td>${pgtoLabel(p.forma_pgto)}</td>
-      <td>${statusLabel(p.status_pgto)}</td>
-    </tr>`).join('');
-  } catch (err) {
-    toast('Erro ao carregar dashboard', 'err');
-  }
+    tbody.innerHTML = lista.length
+      ? lista.map(p => `<tr>
+          <td>${p.cliente_nome}</td>
+          <td>${p.itens.length} item(ns)</td>
+          <td><strong>${fmtR(p.total)}</strong></td>
+          <td>${pgtoLabel(p.forma_pgto)}</td>
+          <td>${statusLabel(p.status_pgto)}</td>
+        </tr>`).join('')
+      : '<tr><td colspan="5" class="tbl-empty">Nenhum pedido ainda.</td></tr>';
+  } catch { toast('Erro ao carregar dashboard', 'err'); }
 }
 
 /* ══ Pedidos ══ */
 let todosPedidos = [];
+
 async function renderPedidos() {
   try {
-    const res   = await api.pedidos.listar();
+    const res    = await api.pedidos.listar();
     todosPedidos = res.dados;
     renderTblPedidos(todosPedidos);
   } catch { toast('Erro ao carregar pedidos', 'err'); }
@@ -102,46 +102,59 @@ async function renderPedidos() {
 function renderTblPedidos(lista) {
   const tbody = document.getElementById('tbl-pedidos');
   if (!lista.length) {
-    tbody.innerHTML = '<tr><td colspan="7" class="tbl-empty">Nenhum pedido.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="8" class="tbl-empty">Nenhum pedido.</td></tr>';
     return;
   }
-  tbody.innerHTML = lista.map(p => `<tr>
-    <td>${p.cliente_nome}</td>
-    <td>${p.cliente_celular}</td>
-    <td class="tbl-muted">${p.itens.map(i => `${i.emoji} ${i.nome}${i.quantidade > 1 ? ' ×' + i.quantidade : ''}`).join(', ')}</td>
-    <td><strong>${fmtR(p.total)}</strong></td>
-    <td>${pgtoLabel(p.forma_pgto)}</td>
-    <td>
-      <select class="status-select ${p.status_pgto === 'pago' ? 'status-select--pago' : 'status-select--pend'}"
-              onchange="window.mudarStatus('${p.id}', this)"
-              aria-label="Status do pagamento">
-        <option value="pendente" ${p.status_pgto !== 'pago' ? 'selected' : ''}>⏳ Pendente</option>
-        <option value="pago"     ${p.status_pgto === 'pago'  ? 'selected' : ''}>✅ Pago</option>
-      </select>
-    </td>
-    <td class="tbl-muted tbl-sm">${fmtData(p.criado_em)}</td>
-  </tr>`).join('');
+  tbody.innerHTML = lista.map(p => {
+    const isPago = p.status_pgto === 'pago';
+    // ✅ Botão excluir aparece APENAS quando o pedido está PAGO
+    const btnDel = isPago
+      ? `<button class="btn-tbl-del btn-tbl-del--pedido"
+                 onclick="window.abrirModalDelPedido('${p.id}','${p.cliente_nome}',${p.total})"
+                 aria-label="Excluir pedido">🗑 Excluir</button>`
+      : `<span class="tbl-del-placeholder" title="Disponível apenas para pedidos pagos">—</span>`;
+
+    return `<tr>
+      <td>${p.cliente_nome}</td>
+      <td>${p.cliente_celular}</td>
+      <td class="tbl-muted">${p.itens.map(i => `${i.emoji} ${i.nome}${i.quantidade > 1 ? ' ×' + i.quantidade : ''}`).join(', ')}</td>
+      <td><strong>${fmtR(p.total)}</strong></td>
+      <td>${pgtoLabel(p.forma_pgto)}</td>
+      <td>
+        <select class="status-select ${isPago ? 'status-select--pago' : 'status-select--pend'}"
+                onchange="window.mudarStatus('${p.id}', this)"
+                aria-label="Status do pagamento"
+                ${isPago ? 'disabled' : ''}>
+          <option value="pendente" ${!isPago ? 'selected' : ''}>⏳ Pendente</option>
+          <option value="pago"     ${isPago  ? 'selected' : ''}>✅ Pago</option>
+        </select>
+      </td>
+      <td class="tbl-muted tbl-sm">${fmtData(p.criado_em)}</td>
+      <td>${btnDel}</td>
+    </tr>`;
+  }).join('');
 }
 
+/* ── Mudar status ── */
 window.mudarStatus = (id, selectEl) => {
   if (selectEl.value !== 'pago') return;
   const p = todosPedidos.find(x => x.id === id);
   if (!p) return;
   document.getElementById('confirm-pgto-nome').textContent  = p.cliente_nome;
   document.getElementById('confirm-pgto-total').textContent = fmtR(p.total);
-  document.getElementById('modal-confirm-pgto').classList.add('modal--open');
+  const modal = document.getElementById('modal-confirm-pgto');
+  modal.removeAttribute('hidden');
+  modal.classList.add('modal--open');
   window._confirmId  = id;
   window._confirmSel = selectEl;
 };
 
 window.confirmarPagamento = async () => {
-  const id = window._confirmId;
   try {
-    await api.pedidos.status(id, 'pago');
+    await api.pedidos.status(window._confirmId, 'pago');
     fecharModalConfirm();
     toast('Pagamento confirmado! ✅', 'ok');
     await renderPedidos();
-    // Atualiza total recebido no dashboard se visível
     const el = document.getElementById('dash-total-rec');
     if (el) {
       const res = await api.pedidos.dashboard();
@@ -157,11 +170,44 @@ window.cancelarConfirm = () => {
   }
   fecharModalConfirm();
 };
+
 function fecharModalConfirm() {
-  document.getElementById('modal-confirm-pgto').classList.remove('modal--open');
-  window._confirmId  = null;
-  window._confirmSel = null;
+  const modal = document.getElementById('modal-confirm-pgto');
+  modal.classList.remove('modal--open');
+  modal.setAttribute('hidden', '');
+  window._confirmId = null; window._confirmSel = null;
 }
+
+/* ── Deletar pedido pago ── */
+window.abrirModalDelPedido = (id, nome, total) => {
+  document.getElementById('del-pedido-nome').textContent  = nome;
+  document.getElementById('del-pedido-total').textContent = fmtR(Number(total));
+  const modal = document.getElementById('modal-del-pedido');
+  modal.removeAttribute('hidden');
+  modal.classList.add('modal--open');
+  window._delPedidoId = id;
+};
+
+window.fecharModalDelPedido = () => {
+  const modal = document.getElementById('modal-del-pedido');
+  modal.classList.remove('modal--open');
+  modal.setAttribute('hidden', '');
+  window._delPedidoId = null;
+};
+
+window.confirmarDelPedido = async () => {
+  try {
+    await api.pedidos.deletar(window._delPedidoId);
+    window.fecharModalDelPedido();
+    toast('Pedido excluído com sucesso', 'ok');
+    await renderPedidos();
+    const el = document.getElementById('dash-total-rec');
+    if (el) {
+      const res = await api.pedidos.dashboard();
+      el.textContent = fmtR(res.dados.total_recebido);
+    }
+  } catch { toast('Erro ao excluir pedido', 'err'); }
+};
 
 window.filtrarPedidos = (q) => {
   const f = q.toLowerCase();
@@ -172,9 +218,10 @@ window.filtrarPedidos = (q) => {
 
 /* ══ Clientes ══ */
 let todosClientes = [];
+
 async function renderClientes() {
   try {
-    const res    = await api.clientes.listar();
+    const res     = await api.clientes.listar();
     todosClientes = res.dados;
     renderTblClientes(todosClientes);
   } catch { toast('Erro ao carregar clientes', 'err'); }
@@ -216,17 +263,21 @@ window.abrirEditarCliente = (id) => {
   document.getElementById('ec-email').value = c.email;
   document.getElementById('ec-cel').value   = c.celular;
   window._editClienteId = id;
-  document.getElementById('modal-edit-cliente').classList.add('modal--open');
+  const modal = document.getElementById('modal-edit-cliente');
+  modal.removeAttribute('hidden');
+  modal.classList.add('modal--open');
 };
 
 window.fecharModalEditCliente = () => {
-  document.getElementById('modal-edit-cliente').classList.remove('modal--open');
+  const modal = document.getElementById('modal-edit-cliente');
+  modal.classList.remove('modal--open');
+  modal.setAttribute('hidden', '');
   window._editClienteId = null;
 };
 
 window.salvarEdicaoCliente = async () => {
-  const nome   = document.getElementById('ec-nome').value.trim();
-  const email  = document.getElementById('ec-email').value.trim();
+  const nome    = document.getElementById('ec-nome').value.trim();
+  const email   = document.getElementById('ec-email').value.trim();
   const celular = document.getElementById('ec-cel').value.trim();
   if (!nome || !email || !celular) { toast('Preencha todos os campos', 'err'); return; }
   try {
@@ -238,7 +289,7 @@ window.salvarEdicaoCliente = async () => {
 };
 
 window.removerCliente = async (id, nome) => {
-  if (!confirm(`Remover o cliente "${nome}"? Os pedidos associados serão mantidos.`)) return;
+  if (!confirm(`Remover o cliente "${nome}"?`)) return;
   try {
     await api.clientes.remover(id);
     await renderClientes();
@@ -246,7 +297,7 @@ window.removerCliente = async (id, nome) => {
   } catch { toast('Erro ao remover cliente', 'err'); }
 };
 
-/* ══ Cobranças ══ */
+/* ══ Cobranças WhatsApp ══ */
 async function renderCobrancas() {
   try {
     const res  = await api.pedidos.cobrancas();
@@ -259,9 +310,9 @@ async function renderCobrancas() {
     const cfg    = cfgRes.dados;
 
     list.innerHTML = res.dados.map(p => {
-      const wppMsg  = gerarMsgWpp(p, cfg);
+      const wppMsg   = gerarMsgWpp(p, cfg);
       const celLimpo = p.cliente_celular.replace(/\D/g, '');
-      const wppLink = `https://wa.me/55${celLimpo}?text=${encodeURIComponent(wppMsg)}`;
+      const wppLink  = `https://wa.me/55${celLimpo}?text=${encodeURIComponent(wppMsg)}`;
       return `
       <article class="cobranca-card">
         <header class="cobranca-card__head">
@@ -343,14 +394,21 @@ window.abrirModalProd = () => {
   document.getElementById('modal-prod-title').textContent = 'Novo produto';
   ['mp-nome','mp-desc','mp-preco','mp-emoji'].forEach(id => { document.getElementById(id).value = ''; });
   document.getElementById('mp-cat').value = 'Suplementos';
-  document.getElementById('modal-prod-bg').classList.add('modal--open');
+  const modal = document.getElementById('modal-prod-bg');
+  modal.removeAttribute('hidden');
+  modal.classList.add('modal--open');
 };
-window.fecharModalProd = () => document.getElementById('modal-prod-bg').classList.remove('modal--open');
+
+window.fecharModalProd = () => {
+  const modal = document.getElementById('modal-prod-bg');
+  modal.classList.remove('modal--open');
+  modal.setAttribute('hidden', '');
+};
 
 window.editarProd = async (id) => {
   try {
-    const res  = await api.produtos.listar();
-    const p    = res.dados.find(x => x.id === id);
+    const res = await api.produtos.listar();
+    const p   = res.dados.find(x => x.id === id);
     if (!p) return;
     editProdId = id;
     document.getElementById('modal-prod-title').textContent = 'Editar produto';
@@ -359,7 +417,9 @@ window.editarProd = async (id) => {
     document.getElementById('mp-preco').value = p.preco;
     document.getElementById('mp-emoji').value = p.emoji;
     document.getElementById('mp-cat').value   = p.categoria;
-    document.getElementById('modal-prod-bg').classList.add('modal--open');
+    const modal = document.getElementById('modal-prod-bg');
+    modal.removeAttribute('hidden');
+    modal.classList.add('modal--open');
   } catch { toast('Erro ao carregar produto', 'err'); }
 };
 
@@ -422,7 +482,7 @@ window.exportarCSV = async (tipo) => {
       const res = await api.pedidos.listar();
       csv  = 'Cliente,Celular,Email,Itens,Total,Pagamento,Status,Data\n';
       csv += res.dados.map(p =>
-        `"${p.cliente_nome}","${p.cliente_celular}","${p.cliente_email}",` +
+        `"${p.cliente_nome}","${p.cliente_celular}","${p.cliente_email ?? ''}",` +
         `"${p.itens.map(i => i.nome + (i.quantidade > 1 ? ' x' + i.quantidade : '')).join(' | ')}",` +
         `"${fmtR(p.total)}","${p.forma_pgto}","${p.status_pgto}","${fmtData(p.criado_em)}"`
       ).join('\n');
@@ -436,7 +496,7 @@ window.exportarCSV = async (tipo) => {
       nome = 'clientes.csv';
     }
     const a = document.createElement('a');
-    a.href     = 'data:text/csv;charset=utf-8,\uFEFF' + encodeURIComponent(csv);
+    a.href = 'data:text/csv;charset=utf-8,\uFEFF' + encodeURIComponent(csv);
     a.download = nome; a.click();
     toast('CSV exportado!', 'ok');
   } catch { toast('Erro ao exportar', 'err'); }

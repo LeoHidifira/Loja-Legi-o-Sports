@@ -4,8 +4,8 @@
 ════════════════════════════════════════ */
 
 /* ── Layout geral ── */
-#view-admin { display: flex !important; flex-direction: column; min-height: 100vh; }
-#view-admin.view--active { display: flex !important; }
+#view-admin { display: none; flex-direction: column; min-height: 100vh; }
+#view-admin.view--active { display: flex; }
 
 /* ── Sidebar (mobile = topbar horizontal) ── */
 .admin-side {

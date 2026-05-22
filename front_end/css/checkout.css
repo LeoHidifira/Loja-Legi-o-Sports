@@ -189,12 +189,12 @@
 
 /* ── Sucesso ── */
 #view-sucesso {
-  display: flex !important;
+  display: none;
   align-items: center;
   justify-content: center;
   min-height: 100vh;
 }
-#view-sucesso.view--active { display: flex !important; }
+#view-sucesso.view--active { display: flex; }
 
 .sucesso-box {
   text-align: center;
@@ -225,12 +225,12 @@
 
 /* ── Login ── */
 #view-login {
-  display: flex !important;
+  display: none;
   align-items: center;
   justify-content: center;
   min-height: 100vh;
 }
-#view-login.view--active { display: flex !important; }
+#view-login.view--active { display: flex ; }
 
 .login-box {
   background: var(--card);
