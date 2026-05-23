@@ -374,3 +374,20 @@
   .produtos-grid { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); padding: 0 32px; gap: 16px; }
   .prod-card__img{ height: 120px; }
 }
+/* ── Animação: item voando para o carrinho ── */
+.fly-emoji {
+  will-change: transform, opacity;
+  filter: drop-shadow(0 2px 6px rgba(0,0,0,0.35));
+}
+
+/* Pulse no badge do carrinho ao receber item */
+.cart-badge--pulse {
+  animation: badge-pulse 0.4s cubic-bezier(0.36, 0.07, 0.19, 0.97);
+}
+
+@keyframes badge-pulse {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.7); background: var(--orange); color: #fff; }
+  70%  { transform: scale(0.9); }
+  100% { transform: scale(1); }
+}

@@ -172,3 +172,20 @@ export async function dashboard(_req: Request, res: Response): Promise<void> {
     res.status(500).json({ sucesso: false, mensagem: 'Erro no dashboard' });
   }
 }
+export async function removerPedido(req: Request, res: Response): Promise<void> {
+  const { id } = req.params;
+  try {
+    const { rowCount } = await pool.query(
+      `DELETE FROM pedidos WHERE id=$1 AND status_pgto='pago'`,
+      [id]
+    );
+    if (!rowCount) {
+      res.status(404).json({ sucesso: false, mensagem: 'Pedido não encontrado ou não está pago' });
+      return;
+    }
+    res.json({ sucesso: true, mensagem: 'Pedido excluído com sucesso' });
+  } catch (err) {
+    console.error('[pedidos] remover:', err);
+    res.status(500).json({ sucesso: false, mensagem: 'Erro ao excluir pedido' });
+  }
+}
