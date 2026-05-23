@@ -21,4 +21,5 @@ router.patch('/:id/status', auth_1.authAdmin, (0, validate_1.validate)(schemas_1
 router.patch('/:id/wpp', auth_1.authAdmin, pedidos_controller_1.marcarEnviadoWpp);
 router.get('/cobrancas', auth_1.authAdmin, pedidos_controller_1.listarCobrancas);
 router.get('/dashboard', auth_1.authAdmin, pedidos_controller_1.dashboard);
+router.delete('/:id', auth_1.authAdmin, pedidos_controller_1.removerPedido);
 exports.default = router;

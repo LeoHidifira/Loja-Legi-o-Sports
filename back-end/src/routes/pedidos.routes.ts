@@ -15,6 +15,7 @@ import {
   marcarEnviadoWpp,
   listarCobrancas,
   dashboard,
+  removerPedido,
 } from '../controllers/pedidos.controller';
 import { authAdmin } from '../middleware/auth';
 import { validate }  from '../middleware/validate';
@@ -28,5 +29,6 @@ router.patch('/:id/status',       authAdmin, validate(StatusPedidoSchema), atual
 router.patch('/:id/wpp',          authAdmin, marcarEnviadoWpp);
 router.get('/cobrancas',          authAdmin, listarCobrancas);
 router.get('/dashboard',          authAdmin, dashboard);
+router.delete('/:id',             authAdmin, removerPedido);
 
 export default router;
