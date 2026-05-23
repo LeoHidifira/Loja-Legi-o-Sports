@@ -6,6 +6,7 @@ exports.atualizarStatusPedido = atualizarStatusPedido;
 exports.listarCobrancas = listarCobrancas;
 exports.marcarEnviadoWpp = marcarEnviadoWpp;
 exports.dashboard = dashboard;
+exports.removerPedido = removerPedido;
 const client_1 = require("../db/client");
 async function listarPedidos(_req, res) {
     try {
@@ -155,5 +156,20 @@ async function dashboard(_req, res) {
     catch (err) {
         console.error('[dashboard]:', err);
         res.status(500).json({ sucesso: false, mensagem: 'Erro no dashboard' });
+    }
+}
+async function removerPedido(req, res) {
+    const { id } = req.params;
+    try {
+        const { rowCount } = await client_1.pool.query(`DELETE FROM pedidos WHERE id=$1 AND status_pgto='pago'`, [id]);
+        if (!rowCount) {
+            res.status(404).json({ sucesso: false, mensagem: 'Pedido não encontrado ou não está pago' });
+            return;
+        }
+        res.json({ sucesso: true, mensagem: 'Pedido excluído com sucesso' });
+    }
+    catch (err) {
+        console.error('[pedidos] remover:', err);
+        res.status(500).json({ sucesso: false, mensagem: 'Erro ao excluir pedido' });
     }
 }
