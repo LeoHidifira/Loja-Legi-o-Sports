@@ -66,9 +66,59 @@ window.addCart = (id) => {
   else carrinho.push({ ...p, qty: 1 });
   atualizarCartUI();
   renderDrawer();
+
   const btn = document.getElementById('ba-' + id);
-  if (btn) { btn.classList.add('btn-add--added'); setTimeout(() => btn.classList.remove('btn-add--added'), 400); }
+  if (btn) {
+    btn.classList.add('btn-add--added');
+    setTimeout(() => btn.classList.remove('btn-add--added'), 400);
+    flyToCart(btn, p.emoji);
+  }
+
+  toast(`${p.emoji} ${p.nome} adicionado ao carrinho!`, 'ok');
 };
+
+function flyToCart(originEl, emoji) {
+  const cartBtn = document.querySelector('.btn-cart');
+  if (!cartBtn || !originEl) return;
+
+  const originRect = originEl.getBoundingClientRect();
+  const cartRect   = cartBtn.getBoundingClientRect();
+
+  const fly = document.createElement('span');
+  fly.className   = 'fly-emoji';
+  fly.textContent = emoji;
+  fly.style.cssText = `
+    position: fixed;
+    left: ${originRect.left + originRect.width / 2}px;
+    top:  ${originRect.top  + originRect.height / 2}px;
+    font-size: 1.6rem;
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(-50%, -50%) scale(1);
+    transition: none;
+  `;
+  document.body.appendChild(fly);
+
+  // força reflow antes de iniciar a transição
+  fly.getBoundingClientRect();
+
+  const dx = (cartRect.left + cartRect.width  / 2) - (originRect.left + originRect.width  / 2);
+  const dy = (cartRect.top  + cartRect.height / 2) - (originRect.top  + originRect.height / 2);
+
+  fly.style.transition = 'transform 0.55s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.55s ease';
+  fly.style.transform  = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px)) scale(0.25)`;
+  fly.style.opacity    = '0.15';
+
+  // pulsa o badge ao chegar
+  fly.addEventListener('transitionend', () => {
+    fly.remove();
+    const badge = document.getElementById('cart-badge');
+    if (badge) {
+      badge.classList.add('cart-badge--pulse');
+      setTimeout(() => badge.classList.remove('cart-badge--pulse'), 400);
+    }
+  }, { once: true });
+}
 
 window.changeQty = (id, d) => {
   const i = carrinho.find(x => x.id === id);
