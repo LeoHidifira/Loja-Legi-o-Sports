@@ -1,7 +1,7 @@
 // src/context/CartContext.tsx
 import { createContext, useContext, useState, ReactNode } from 'react';
 import { ItemCarrinho, Produto } from '../types';
-import { fmtR } from '../utils';
+import { useToast } from './ToastContext';
 
 interface CartContextType {
   carrinho: ItemCarrinho[];
@@ -17,7 +17,8 @@ interface CartContextType {
 
 const CartContext = createContext<CartContextType>({} as CartContextType);
 
-export function CartProvider({ children, onToast }: { children: ReactNode; onToast: (m: string) => void }) {
+export function CartProvider({ children }: { children: ReactNode }) {
+  const toast = useToast();
   const [carrinho, setCarrinho] = useState<ItemCarrinho[]>([]);
   const [drawerOpen, setDrawerOpen] = useState(false);
 
@@ -67,7 +68,7 @@ export function CartProvider({ children, onToast }: { children: ReactNode; onToa
       return [...prev, { ...produto, qty: 1 }];
     });
     if (originEl) flyToCart(originEl);
-    onToast(`${produto.emoji} ${produto.nome} adicionado ao carrinho!`);
+    toast(`${produto.emoji} ${produto.nome} adicionado ao carrinho!`, 'ok');
   };
 
   const changeQty = (id: string, delta: number) => {
@@ -79,8 +80,8 @@ export function CartProvider({ children, onToast }: { children: ReactNode; onToa
     });
   };
 
-  const removeItem  = (id: string) => setCarrinho(prev => prev.filter(x => x.id !== id));
-  const limparCarrinho = () => setCarrinho([]);
+  const removeItem     = (id: string) => setCarrinho(prev => prev.filter(x => x.id !== id));
+  const limparCarrinho = ()           => setCarrinho([]);
 
   return (
     <CartContext.Provider value={{ carrinho, addCart, changeQty, removeItem, limparCarrinho, total, qtd, drawerOpen, setDrawerOpen }}>
